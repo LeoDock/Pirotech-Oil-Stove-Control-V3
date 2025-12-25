@@ -84,13 +84,22 @@
         <!-- PROFILI -->
         <section>
             <h2>Profili</h2>
+
+            <!-- Selezione profilo -->
             <div class="button-row">
-                <button class="profile-btn" data-profile="P1">P1</button>
-                <button class="profile-btn" data-profile="P2">P2</button>
-                <button class="profile-btn" data-profile="P3">P3</button>
+                <button class="profile-btn" data-profile="P1" id="btnP1">P1</button>
+                <button class="profile-btn" data-profile="P2" id="btnP2">P2</button>
+                <button class="profile-btn" data-profile="P3" id="btnP3">P3</button>
             </div>
+
+            <!-- Azioni profilo -->
+            <div class="button-row" style="margin-top: 10px;">
+                <button id="btnSaveProfile" class="profile-action-btn">SALVA</button>
+                <button id="btnResetProfile" class="profile-action-btn">RESET</button>
+            </div>
+
             <p class="hint">
-                Tap = Carica • Pressione lunga = Salva • Pressione molto lunga = Reset
+                Seleziona un profilo, poi SALVA o RESET.
             </p>
         </section>
 
@@ -118,3 +127,4 @@
 
 </body>
 </html>
+
