@@ -74,7 +74,7 @@ header h1 {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #f97316; /* stato "non connesso" */
+    background: #f97316;
 }
 
 .ble-btn.connected {
@@ -90,7 +90,7 @@ header h1 {
     transform: scale(0.97);
 }
 
-/* MAIN LAYOUT */
+/* MAIN */
 
 main {
     padding: 16px;
@@ -214,20 +214,72 @@ button.active {
                 0 12px 24px rgba(248, 113, 113, 0.35);
 }
 
-/* PROFILE BUTTONS */
+/* ============================
+   PROFILI – STILI AGGIUNTIVI
+   ============================ */
 
 .profile-btn {
     flex: 1 1 30%;
     position: relative;
+    background: var(--btn-bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+    transition: all var(--transition-fast);
 }
 
-.profile-btn span.profile-state {
-    position: absolute;
-    bottom: 4px;
-    right: 6px;
-    font-size: 0.65rem;
+/* Profilo selezionato */
+.profile-btn.selected {
+    border-color: var(--accent-warning);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+}
+
+/* Profilo valido */
+.profile-btn.valid {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+/* Profilo vuoto */
+.profile-btn.empty {
+    background: rgba(55, 65, 81, 0.4);
+    border-color: #3b4252;
     color: var(--text-secondary);
-    opacity: 0.7;
+}
+
+/* Pulsanti SALVA / RESET */
+.profile-action-btn {
+    flex: 1 1 45%;
+    padding: 10px 16px;
+    font-weight: 600;
+    border-radius: var(--btn-radius);
+    transition: all var(--transition-fast);
+}
+
+/* SALVA */
+#btnSaveProfile {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+
+#btnSaveProfile:hover {
+    background: var(--accent-soft);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+}
+
+/* RESET */
+#btnResetProfile {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid var(--accent-danger);
+    color: var(--accent-danger);
+}
+
+#btnResetProfile:hover {
+    background: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
 }
 
 /* HINT TEXT */
