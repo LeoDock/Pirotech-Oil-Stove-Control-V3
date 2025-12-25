@@ -1,4 +1,7 @@
-// File vuoto per evitare conflitti con versioni precedenti
-console.log("ble.js caricato (versione minimale)");
+// Legacy BLE disattivato per il test
+console.log("ble-legacy.js caricato (dummy)");
+
+
+
 
 
