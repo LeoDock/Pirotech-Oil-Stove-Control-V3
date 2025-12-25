@@ -271,9 +271,20 @@ function setupUIEvents() {
     $('#stopBtn').addEventListener('click', () => sendCommand('STOP'));
 
     // PROFILI: P1 / P2 / P3
-    $('#btnP1').addEventListener('click', () => sendCommand('LOAD:P1'));
-    $('#btnP2').addEventListener('click', () => sendCommand('LOAD:P2'));
-    $('#btnP3').addEventListener('click', () => sendCommand('LOAD:P3'));
+    $('#btnP1').addEventListener('click', () => {
+        selectedProfile = "P1";
+        sendCommand('LOAD:P1');
+    });
+
+    $('#btnP2').addEventListener('click', () => {
+        selectedProfile = "P2";
+        sendCommand('LOAD:P2');
+    });
+
+    $('#btnP3').addEventListener('click', () => {
+        selectedProfile = "P3";
+        sendCommand('LOAD:P3');
+    });
 
     // SALVA / RESET sul profilo selezionato
     $('#btnSaveProfile').addEventListener('click', () => {
@@ -302,5 +313,6 @@ window.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error('Errore service worker:', err));
     }
 });
+
 
 
