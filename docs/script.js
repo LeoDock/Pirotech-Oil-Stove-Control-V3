@@ -37,6 +37,23 @@ async function sendCommand(cmd) {
 }
 
 // ===============================
+// RICEZIONE NOTIFICHE
+// ===============================
+
+function handleIncoming(msg) {
+    console.log("RX ←", msg);
+
+    if (msg.startsWith("PROFILE:")) return;
+    if (msg.startsWith("VENT:")) return;
+    if (msg.startsWith("TON:")) return;
+    if (msg.startsWith("TOFF:")) return;
+    if (msg.startsWith("MODE:")) return;
+    if (msg.startsWith("ACTIVE:")) return;
+
+    console.log("Messaggio non gestito:", msg);
+}
+
+// ===============================
 // CONNESSIONE BLE
 // ===============================
 
@@ -53,6 +70,13 @@ async function connectBLE() {
 
         console.log("BLE connesso");
         $("#connectBtn").textContent = "Connesso";
+
+        // ATTIVA NOTIFICHE
+        await bleCharacteristic.startNotifications();
+        bleCharacteristic.addEventListener("characteristicvaluechanged", event => {
+            const msg = new TextDecoder().decode(event.target.value).trim();
+            handleIncoming(msg);
+        });
 
     } catch (err) {
         console.error("Errore BLE:", err);
@@ -165,5 +189,6 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
+
 
 
