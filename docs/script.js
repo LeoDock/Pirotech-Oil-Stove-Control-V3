@@ -68,6 +68,19 @@ function setupUI() {
     $("#connectBtn").addEventListener("click", connectBLE);
 
     // ===============================
+    // START / STOP
+    // ===============================
+    $("#btnStart").addEventListener("click", () => {
+        console.log("CLICK START");
+        sendCommand("START");
+    });
+
+    $("#btnStop").addEventListener("click", () => {
+        console.log("CLICK STOP");
+        sendCommand("STOP");
+    });
+
+    // ===============================
     // VENTOLA
     // ===============================
     $all(".vent-btn").forEach(btn => {
