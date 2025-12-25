@@ -13,14 +13,6 @@ let bleCharacteristic = null;
 let bleDriver = null;
 
 // ===============================
-// RILEVAMENTO WEB BLUETOOTH
-// ===============================
-
-function isWebBluetoothAvailable() {
-    return navigator.bluetooth && navigator.bluetooth.requestDevice;
-}
-
-// ===============================
 // STATO LOCALE DELL'APP
 // ===============================
 
@@ -29,12 +21,9 @@ let currentTon = 5;
 let currentToff = 3;
 let currentMode = 'MAN';
 let systemRunning = false;
-let currentProfile = '-';
 
-const LONG_PRESS_MS = 800;
-const VERY_LONG_PRESS_MS = 2000;
-let profilePressTimers = {};
-let profilePressStart = {};
+let selectedProfile = null;   // P1 / P2 / P3
+let profileStates = { P1: "EMPTY", P2: "EMPTY", P3: "EMPTY" };
 
 // ===============================
 // UTILITY DOM
@@ -55,73 +44,8 @@ function $all(selector) {
 function updateStatusUI() {
     $('#statusVentola').textContent = currentVentola;
     $('#statusPompa').textContent   = systemRunning ? 'ON' : 'OFF';
-    $('#statusMode').textContent    = (currentMode === 'MAN') ? 'Manualale' : 'Automatica';
-    $('#statusProfile').textContent = currentProfile;
-}
-
-function setActiveButton(buttons, predicate) {
-    buttons.forEach(btn => {
-        if (predicate(btn)) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-}
-
-// ===============================
-// INVIO COMANDI AL FIRMWARE
-// ===============================
-
-async function sendCommand(command) {
-    console.log('Comando →', command);
-
-    handleLocalCommand(command);
-
-    if (!bleCharacteristic) {
-        console.warn('BLE non connesso, comando solo locale.');
-        return;
-    }
-
-    try {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(command + '\n');
-        await bleCharacteristic.writeValue(data);
-    } catch (err) {
-        console.error('Errore invio BLE:', err);
-    }
-}
-
-// ===============================
-// GESTIONE COMANDI IN LOCALE (UI)
-// ===============================
-
-function handleLocalCommand(cmd) {
-    if (cmd === 'START') {
-        systemRunning = true;
-    } else if (cmd === 'STOP') {
-        systemRunning = false;
-    } else if (cmd === 'MODE:MAN') {
-        currentMode = 'MAN';
-    } else if (cmd === 'MODE:AUTO') {
-        currentMode = 'AUTO';
-    } else if (cmd.startsWith('VENT:')) {
-        currentVentola = cmd.split(':')[1];
-    } else if (cmd.startsWith('TON:')) {
-        currentTon = parseInt(cmd.split(':')[1], 10);
-    } else if (cmd.startsWith('TOFF:')) {
-        currentToff = parseInt(cmd.split(':')[1], 10);
-    } else if (cmd.startsWith('LOAD:P')) {
-        currentProfile = 'P' + cmd.split('P')[1];
-    } else if (cmd.startsWith('RESET:P')) {
-        const p = cmd.split('P')[1];
-        if (currentProfile === 'P' + p) currentProfile = '-';
-    } else if (cmd.startsWith('SAVE:P')) {
-        currentProfile = 'P' + cmd.split('P')[1];
-    }
-
-    updateStatusUI();
-    syncActiveButtonsUI();
+    $('#statusMode').textContent    = (currentMode === 'MAN') ? 'Manuale' : 'Automatica';
+    $('#statusProfile').textContent = selectedProfile ?? '-';
 }
 
 function syncActiveButtonsUI() {
@@ -134,70 +58,126 @@ function syncActiveButtonsUI() {
 
     $('#startBtn').classList.toggle('active', systemRunning);
     $('#stopBtn').classList.toggle('active', !systemRunning);
+
+    updateProfileButtonsUI();
+}
+
+function setActiveButton(buttons, predicate) {
+    buttons.forEach(btn => {
+        if (predicate(btn)) btn.classList.add('active');
+        else btn.classList.remove('active');
+    });
 }
 
 // ===============================
-// CONNESSIONE BLE (WEB BLUETOOTH + LEGACY)
+// PROFILI: UI
 // ===============================
 
-async function connectBLE() {
-    if (bleDevice && bleServer && bleCharacteristic) {
-        console.log('BLE già connesso.');
+function updateProfileButtonsUI() {
+    ["P1","P2","P3"].forEach(p => {
+        const btn = $("#btn" + p);
+
+        btn.classList.remove("selected", "valid", "empty");
+
+        if (selectedProfile === p) btn.classList.add("selected");
+        if (profileStates[p] === "VALID") btn.classList.add("valid");
+        if (profileStates[p] === "EMPTY") btn.classList.add("empty");
+    });
+}
+
+// ===============================
+// INVIO COMANDI AL FIRMWARE
+// ===============================
+
+async function sendCommand(command) {
+    console.log("Comando →", command);
+
+    handleLocalCommand(command);
+
+    if (!bleCharacteristic) {
+        console.warn("BLE non connesso, comando solo locale.");
         return;
     }
 
-    // Se Web Bluetooth è disponibile → usa quello
-    if (isWebBluetoothAvailable()) {
-        console.log("Web Bluetooth disponibile → uso BLE ufficiale");
-        return connectWebBluetooth();
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(command + "\n");
+        await bleCharacteristic.writeValue(data);
+    } catch (err) {
+        console.error("Errore invio BLE:", err);
+    }
+}
+
+// ===============================
+// GESTIONE COMANDI IN LOCALE
+// ===============================
+
+function handleLocalCommand(cmd) {
+
+    if (cmd === "START") systemRunning = true;
+    else if (cmd === "STOP") systemRunning = false;
+
+    else if (cmd === "MODE:MAN") currentMode = "MAN";
+    else if (cmd === "MODE:AUTO") currentMode = "AUTO";
+
+    else if (cmd.startsWith("VENT:")) currentVentola = cmd.split(":")[1];
+    else if (cmd.startsWith("TON:")) currentTon = parseInt(cmd.split(":")[1]);
+    else if (cmd.startsWith("TOFF:")) currentToff = parseInt(cmd.split(":")[1]);
+
+    else if (cmd.startsWith("SELECT:P")) {
+        selectedProfile = cmd.split(":")[1];
     }
 
-    // Altrimenti → fallback Legacy
-    console.log("Web Bluetooth NON disponibile → uso BLE Legacy");
+    else if (cmd === "SAVE:SEL" && selectedProfile) {
+        profileStates[selectedProfile] = "VALID";
+    }
+
+    else if (cmd === "RESET:SEL" && selectedProfile) {
+        profileStates[selectedProfile] = "EMPTY";
+    }
+
+    updateStatusUI();
+    syncActiveButtonsUI();
+}
+
+// ===============================
+// CONNESSIONE BLE
+// ===============================
+
+function isWebBluetoothAvailable() {
+    return navigator.bluetooth && navigator.bluetooth.requestDevice;
+}
+
+async function connectBLE() {
+    if (bleDevice && bleServer && bleCharacteristic) return;
+
+    if (isWebBluetoothAvailable()) return connectWebBluetooth();
     return connectLegacyBLE();
 }
 
-// -------------------------------
-// WEB BLUETOOTH UFFICIALE
-// -------------------------------
-
 async function connectWebBluetooth() {
     try {
-        console.log("Richiesta dispositivo BLE...");
-
         const device = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
             optionalServices: [BLE_SERVICE_UUID]
         });
 
-        console.log("Dispositivo selezionato:", device.name);
-
         bleDevice = device;
         bleDevice.addEventListener("gattserverdisconnected", onBLEDisconnect);
 
-        console.log("Connessione GATT...");
         const server = await device.gatt.connect();
         bleServer = server;
 
-        console.log("Recupero servizio...");
         const service = await server.getPrimaryService(BLE_SERVICE_UUID);
+        bleCharacteristic = await service.getCharacteristic(BLE_CHARACTERISTIC_UUID);
 
-        console.log("Recupero caratteristica...");
-        const characteristic = await service.getCharacteristic(BLE_CHARACTERISTIC_UUID);
-        bleCharacteristic = characteristic;
-
-        console.log("BLE connesso correttamente");
         updateBLEButtonState(true);
 
     } catch (err) {
-        console.error("Errore connessione BLE:", err);
+        console.error("Errore BLE:", err);
         updateBLEButtonState(false);
     }
 }
-
-// -------------------------------
-// BLE LEGACY (Xiaomi Fix)
-// -------------------------------
 
 async function connectLegacyBLE() {
     if (!window.LegacyBLE) {
@@ -205,12 +185,9 @@ async function connectLegacyBLE() {
         return;
     }
 
-    console.log("Connessione tramite Legacy BLE...");
-
     bleDriver = new LegacyBLE();
     await bleDriver.connect();
 
-    // Legacy BLE espone direttamente le caratteristiche
     bleDevice = bleDriver.device;
     bleServer = bleDriver.server;
     bleCharacteristic = bleDriver.tx;
@@ -218,12 +195,7 @@ async function connectLegacyBLE() {
     updateBLEButtonState(true);
 }
 
-// -------------------------------
-// DISCONNESSIONE
-// -------------------------------
-
 function onBLEDisconnect() {
-    console.warn('BLE disconnesso');
     bleDevice = null;
     bleServer = null;
     bleCharacteristic = null;
@@ -231,10 +203,9 @@ function onBLEDisconnect() {
 }
 
 function updateBLEButtonState(connected) {
-    const btn = $('#connectBtn');
-    if (!btn) return;
-    btn.classList.toggle('connected', connected);
-    btn.textContent = connected ? 'BLE connesso' : 'Connetti BLE';
+    const btn = $("#connectBtn");
+    btn.classList.toggle("connected", connected);
+    btn.textContent = connected ? "BLE connesso" : "Connetti BLE";
 }
 
 // ===============================
@@ -242,73 +213,44 @@ function updateBLEButtonState(connected) {
 // ===============================
 
 function setupUIEvents() {
-    $('#connectBtn').addEventListener('click', () => connectBLE());
 
-    $all('.vent-btn').forEach(btn =>
-        btn.addEventListener('click', () => sendCommand(`VENT:${btn.dataset.speed}`))
+    $("#connectBtn").addEventListener("click", () => connectBLE());
+
+    $all(".vent-btn").forEach(btn =>
+        btn.addEventListener("click", () => sendCommand(`VENT:${btn.dataset.speed}`))
     );
 
-    $all('.ton-btn').forEach(btn =>
-        btn.addEventListener('click', () => sendCommand(`TON:${parseInt(btn.dataset.ton, 10)}`))
+    $all(".ton-btn").forEach(btn =>
+        btn.addEventListener("click", () => sendCommand(`TON:${btn.dataset.ton}`))
     );
 
-    $all('.toff-btn').forEach(btn =>
-        btn.addEventListener('click', () => sendCommand(`TOFF:${parseInt(btn.dataset.toff, 10)}`))
+    $all(".toff-btn").forEach(btn =>
+        btn.addEventListener("click", () => sendCommand(`TOFF:${btn.dataset.toff}`))
     );
 
-    $('#modeManual').addEventListener('click', () => sendCommand('MODE:MAN'));
-    $('#modeAuto').addEventListener('click', () => sendCommand('MODE:AUTO'));
+    $("#modeManual").addEventListener("click", () => sendCommand("MODE:MAN"));
+    $("#modeAuto").addEventListener("click", () => sendCommand("MODE:AUTO"));
 
-    $('#startBtn').addEventListener('click', () => sendCommand('START'));
-    $('#stopBtn').addEventListener('click', () => sendCommand('STOP'));
+    $("#startBtn").addEventListener("click", () => sendCommand("START"));
+    $("#stopBtn").addEventListener("click", () => sendCommand("STOP"));
 
-    $all('.profile-btn').forEach(btn => {
-        const profileId = btn.dataset.profile;
+    // PROFILI: selezione
+    $("#btnP1").addEventListener("click", () => sendCommand("SELECT:P1"));
+    $("#btnP2").addEventListener("click", () => sendCommand("SELECT:P2"));
+    $("#btnP3").addEventListener("click", () => sendCommand("SELECT:P3"));
 
-        btn.addEventListener('pointerdown', () => {
-            profilePressStart[profileId] = Date.now();
-            profilePressTimers[profileId] = setTimeout(() => {}, LONG_PRESS_MS);
-        });
-
-        btn.addEventListener('pointerup', () => {
-            const start = profilePressStart[profileId];
-            profilePressStart[profileId] = null;
-            clearTimeout(profilePressTimers[profileId]);
-
-            if (!start) return;
-
-            const diff = Date.now() - start;
-
-            if (diff >= VERY_LONG_PRESS_MS) {
-                sendCommand(`RESET:${profileId}`);
-            } else if (diff >= LONG_PRESS_MS) {
-                sendCommand(`SAVE:${profileId}`);
-            } else {
-                sendCommand(`LOAD:${profileId}`);
-            }
-        });
-
-        btn.addEventListener('pointerleave', () => {
-            if (profilePressStart[profileId]) {
-                profilePressStart[profileId] = null;
-                clearTimeout(profilePressTimers[profileId]);
-            }
-        });
-    });
+    // PROFILI: azioni
+    $("#btnSaveProfile").addEventListener("click", () => sendCommand("SAVE:SEL"));
+    $("#btnResetProfile").addEventListener("click", () => sendCommand("RESET:SEL"));
 }
 
 // ===============================
 // INIT
 // ===============================
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
     setupUIEvents();
     updateStatusUI();
     syncActiveButtonsUI();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(() => console.log('Service worker registrato'))
-            .catch(err => console.error('Errore service worker:', err));
-    }
 });
+
