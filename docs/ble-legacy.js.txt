@@ -1,0 +1,45 @@
+// =====================================
+// BLE LEGACY DRIVER (Compatibile Xiaomi)
+// =====================================
+
+class LegacyBLE {
+    constructor() {
+        this.device = null;
+        this.server = null;
+        this.rx = null;
+        this.tx = null;
+        this.onReceive = null;
+    }
+
+    async connect() {
+        console.log("LEGACY BLE: scanning...");
+
+        // Disattiva Web Bluetooth ufficiale
+        navigator.bluetooth.requestDevice = undefined;
+
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (window.esp32Device) {
+                    clearInterval(interval);
+                    this.device = window.esp32Device;
+                    this.server = window.esp32Device.gattServer;
+                    this.rx = window.esp32Device.rx;
+                    this.tx = window.esp32Device.tx;
+                    resolve(true);
+                }
+            }, 300);
+        });
+    }
+
+    async send(data) {
+        if (!this.tx) return;
+        const encoder = new TextEncoder();
+        await this.tx.writeValue(encoder.encode(data));
+    }
+
+    setReceiveCallback(callback) {
+        this.onReceive = callback;
+    }
+}
+
+window.LegacyBLE = LegacyBLE;

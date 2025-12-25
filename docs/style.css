@@ -1,0 +1,289 @@
+:root {
+    --bg-color: #111827;
+    --bg-elevated: #1f2937;
+    --accent: #10b981;
+    --accent-soft: rgba(16, 185, 129, 0.15);
+    --accent-danger: #ef4444;
+    --accent-warning: #f59e0b;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --border-color: #374151;
+    --btn-bg: #111827;
+    --btn-bg-active: #10b981;
+    --btn-bg-secondary: #1f2937;
+    --btn-radius: 10px;
+    --transition-fast: 0.15s ease-out;
+    --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.35);
+    --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background: radial-gradient(circle at top, #111827 0, #020617 55%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+
+header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(to right, #020617, #111827);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+}
+
+/* BLE BUTTON */
+
+.ble-btn {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.ble-btn::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f97316; /* stato "non connesso" */
+}
+
+.ble-btn.connected {
+    background: var(--accent-soft);
+    color: var(--text-primary);
+}
+
+.ble-btn.connected::before {
+    background: #22c55e;
+}
+
+.ble-btn:active {
+    transform: scale(0.97);
+}
+
+/* MAIN LAYOUT */
+
+main {
+    padding: 16px;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto 32px;
+}
+
+/* SECTIONS */
+
+section {
+    background: rgba(15, 23, 42, 0.92);
+    border-radius: 16px;
+    padding: 16px 14px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(55, 65, 81, 0.9);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(10px);
+}
+
+section h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* BUTTON ROWS */
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* BASE BUTTON STYLE */
+
+button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    border-radius: var(--btn-radius);
+    border: 1px solid var(--border-color);
+    background: var(--btn-bg-secondary);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                transform var(--transition-fast),
+                box-shadow var(--transition-fast),
+                color var(--transition-fast);
+    min-width: 60px;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* ACTIVE STATE */
+
+button.active {
+    background: var(--btn-bg-active);
+    border-color: var(--btn-bg-active);
+    color: #052e16;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.6),
+                0 10px 20px rgba(16, 185, 129, 0.25);
+}
+
+/* SPECIFIC BUTTON TYPES */
+
+.vent-btn {
+    flex: 1 1 15%;
+    text-align: center;
+}
+
+.ton-btn,
+.toff-btn {
+    flex: 1 1 18%;
+    text-align: center;
+}
+
+/* MODE BUTTONS */
+
+.mode-btn {
+    flex: 1 1 45%;
+}
+
+.mode-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* START / STOP BUTTONS */
+
+.start-btn {
+    flex: 1 1 45%;
+    background: linear-gradient(to right, #16a34a, #22c55e);
+    border-color: #22c55e;
+    color: #022c22;
+    font-weight: 600;
+}
+
+.start-btn.active {
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6),
+                0 12px 24px rgba(34, 197, 94, 0.35);
+}
+
+.stop-btn {
+    flex: 1 1 45%;
+    background: linear-gradient(to right, #b91c1c, #ef4444);
+    border-color: #ef4444;
+    color: #fef2f2;
+    font-weight: 600;
+}
+
+.stop-btn.active {
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.6),
+                0 12px 24px rgba(248, 113, 113, 0.35);
+}
+
+/* PROFILE BUTTONS */
+
+.profile-btn {
+    flex: 1 1 30%;
+    position: relative;
+}
+
+.profile-btn span.profile-state {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* HINT TEXT */
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+
+/* STATUS BOX */
+
+.status-box {
+    background: #020617;
+    border-radius: 12px;
+    padding: 12px 10px;
+    border: 1px solid #1f2937;
+    font-size: 0.9rem;
+}
+
+.status-box p {
+    margin-bottom: 4px;
+}
+
+.status-box p:last-child {
+    margin-bottom: 0;
+}
+
+.status-box strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* RESPONSIVE */
+
+@media (min-width: 768px) {
+    main {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding-inline: 12px;
+    }
+
+    section {
+        padding-inline: 12px;
+    }
+
+    button {
+        padding: 7px 10px;
+        font-size: 0.85rem;
+    }
+}

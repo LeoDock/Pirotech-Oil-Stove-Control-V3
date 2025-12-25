@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pirotech Oil Stove Control</title>
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Stile -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icona -->
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+</head>
+
+<body>
+
+    <header>
+        <h1>Pirotech Oil Stove Control</h1>
+        <button id="connectBtn" class="ble-btn">Connetti BLE</button>
+    </header>
+
+    <main>
+
+        <!-- SEZIONE VENTOLA -->
+        <section>
+            <h2>Velocità Ventola</h2>
+            <div class="button-row">
+                <button class="vent-btn" data-speed="OFF">OFF</button>
+                <button class="vent-btn" data-speed="V1">V1</button>
+                <button class="vent-btn" data-speed="V2">V2</button>
+                <button class="vent-btn" data-speed="V3">V3</button>
+                <button class="vent-btn" data-speed="V4">V4</button>
+                <button class="vent-btn" data-speed="V5">V5</button>
+            </div>
+        </section>
+
+        <!-- SEZIONE TEMPI ON -->
+        <section>
+            <h2>Tempo ON (Automatico)</h2>
+            <div class="button-row">
+                <button class="ton-btn" data-ton="5">5s</button>
+                <button class="ton-btn" data-ton="10">10s</button>
+                <button class="ton-btn" data-ton="15">15s</button>
+                <button class="ton-btn" data-ton="20">20s</button>
+                <button class="ton-btn" data-ton="30">30s</button>
+                <button class="ton-btn" data-ton="40">40s</button>
+                <button class="ton-btn" data-ton="50">50s</button>
+                <button class="ton-btn" data-ton="60">60s</button>
+            </div>
+        </section>
+
+        <!-- SEZIONE TEMPI OFF -->
+        <section>
+            <h2>Tempo OFF (Automatico)</h2>
+            <div class="button-row">
+                <button class="toff-btn" data-toff="3">3s</button>
+                <button class="toff-btn" data-toff="5">5s</button>
+                <button class="toff-btn" data-toff="10">10s</button>
+                <button class="toff-btn" data-toff="15">15s</button>
+            </div>
+        </section>
+
+        <!-- MODALITÀ -->
+        <section>
+            <h2>Modalità Pompa</h2>
+            <div class="button-row">
+                <button id="modeManual" class="mode-btn">Manuale</button>
+                <button id="modeAuto" class="mode-btn">Automatica</button>
+            </div>
+        </section>
+
+        <!-- START / STOP -->
+        <section>
+            <h2>Controllo Sistema</h2>
+            <div class="button-row">
+                <button id="startBtn" class="start-btn">START</button>
+                <button id="stopBtn" class="stop-btn">STOP</button>
+            </div>
+        </section>
+
+        <!-- PROFILI -->
+        <section>
+            <h2>Profili</h2>
+            <div class="button-row">
+                <button class="profile-btn" data-profile="P1">P1</button>
+                <button class="profile-btn" data-profile="P2">P2</button>
+                <button class="profile-btn" data-profile="P3">P3</button>
+            </div>
+            <p class="hint">
+                Tap = Carica • Pressione lunga = Salva • Pressione molto lunga = Reset
+            </p>
+        </section>
+
+        <!-- STATO -->
+        <section>
+            <h2>Stato Sistema</h2>
+            <div id="statusBox" class="status-box">
+                <p><strong>Ventola:</strong> <span id="statusVentola">-</span></p>
+                <p><strong>Pompa:</strong> <span id="statusPompa">-</span></p>
+                <p><strong>Modalità:</strong> <span id="statusMode">-</span></p>
+                <p><strong>Profilo:</strong> <span id="statusProfile">-</span></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BLE ufficiale -->
+    <script src="ble.js"></script>
+
+    <!-- BLE Legacy (Xiaomi fix) -->
+    <script src="ble-legacy.js"></script>
+
+    <!-- Logica principale -->
+    <script src="script.js"></script>
+
+</body>
+</html>
