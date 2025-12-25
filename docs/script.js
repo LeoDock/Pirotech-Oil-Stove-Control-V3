@@ -1,3 +1,5 @@
+console.log("SCRIPT.JS CARICATO");
+
 // ===============================
 // CONFIGURAZIONE BLE
 // ===============================
@@ -107,7 +109,6 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
-
 
 
 
