@@ -67,14 +67,53 @@ function setupUI() {
 
     $("#connectBtn").addEventListener("click", connectBLE);
 
-    // VELOCITÀ
+    // ===============================
+    // VENTOLA
+    // ===============================
     $all(".vent-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`VENT:${btn.dataset.speed}`);
         });
     });
 
+    // ===============================
+    // TEMPO ON
+    // ===============================
+    $all(".ton-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const val = btn.dataset.ton;
+            console.log("CLICK TON", val);
+            sendCommand(`TON:${val}`);
+        });
+    });
+
+    // ===============================
+    // TEMPO OFF
+    // ===============================
+    $all(".toff-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const val = btn.dataset.toff;
+            console.log("CLICK TOFF", val);
+            sendCommand(`TOFF:${val}`);
+        });
+    });
+
+    // ===============================
+    // MODALITÀ POMPA
+    // ===============================
+    $("#modeManual").addEventListener("click", () => {
+        console.log("CLICK MODE MAN");
+        sendCommand("MODE:MAN");
+    });
+
+    $("#modeAuto").addEventListener("click", () => {
+        console.log("CLICK MODE AUTO");
+        sendCommand("MODE:AUTO");
+    });
+
+    // ===============================
     // PROFILI
+    // ===============================
     $("#btnP1").addEventListener("click", () => {
         selectedProfile = "P1";
         console.log("Profilo selezionato:", selectedProfile);
@@ -93,14 +132,18 @@ function setupUI() {
         sendCommand("LOAD:P3");
     });
 
-    // SALVA
+    // ===============================
+    // SALVA PROFILO
+    // ===============================
     $("#btnSaveProfile").addEventListener("click", () => {
         console.log("CLICK SALVA", selectedProfile);
         if (!selectedProfile) return;
         sendCommand(`SAVE:${selectedProfile}`);
     });
 
-    // RESET
+    // ===============================
+    // RESET PROFILO
+    // ===============================
     $("#btnResetProfile").addEventListener("click", () => {
         console.log("CLICK RESET", selectedProfile);
         if (!selectedProfile) return;
@@ -109,6 +152,5 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
-
 
 
