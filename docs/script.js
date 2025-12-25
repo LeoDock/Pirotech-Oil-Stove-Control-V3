@@ -44,13 +44,24 @@ function handleIncoming(msg) {
     console.log("RX ←", msg);
 
     if (msg.startsWith("PROFILE:")) return;
-    if (msg.startsWith("VENT:")) return;
+
+    if (msg.startsWith("VENT:")) {
+        $("#statusVentola").textContent = msg.split(":")[1];
+        return;
+    }
+
     if (msg.startsWith("TON:")) return;
     if (msg.startsWith("TOFF:")) return;
-    if (msg.startsWith("MODE:")) return;
-    if (msg.startsWith("ACTIVE:")) return;
 
-    console.log("Messaggio non gestito:", msg);
+    if (msg.startsWith("MODE:")) {
+        $("#statusMode").textContent = msg.split(":")[1];
+        return;
+    }
+
+    if (msg.startsWith("ACTIVE:")) {
+        $("#statusProfile").textContent = msg.split(":")[1];
+        return;
+    }
 }
 
 // ===============================
@@ -91,100 +102,47 @@ function setupUI() {
 
     $("#connectBtn").addEventListener("click", connectBLE);
 
-    // ===============================
     // START / STOP
-    // ===============================
-    $("#btnStart").addEventListener("click", () => {
-        console.log("CLICK START");
-        sendCommand("START");
-    });
+    $("#startBtn").addEventListener("click", () => sendCommand("START"));
+    $("#stopBtn").addEventListener("click", () => sendCommand("STOP"));
 
-    $("#btnStop").addEventListener("click", () => {
-        console.log("CLICK STOP");
-        sendCommand("STOP");
-    });
-
-    // ===============================
     // VENTOLA
-    // ===============================
     $all(".vent-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`VENT:${btn.dataset.speed}`);
         });
     });
 
-    // ===============================
-    // TEMPO ON
-    // ===============================
+    // TON
     $all(".ton-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const val = btn.dataset.ton;
-            console.log("CLICK TON", val);
-            sendCommand(`TON:${val}`);
+            sendCommand(`TON:${btn.dataset.ton}`);
         });
     });
 
-    // ===============================
-    // TEMPO OFF
-    // ===============================
+    // TOFF
     $all(".toff-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const val = btn.dataset.toff;
-            console.log("CLICK TOFF", val);
-            sendCommand(`TOFF:${val}`);
+            sendCommand(`TOFF:${btn.dataset.toff}`);
         });
     });
 
-    // ===============================
-    // MODALITÀ POMPA
-    // ===============================
-    $("#modeManual").addEventListener("click", () => {
-        console.log("CLICK MODE MAN");
-        sendCommand("MODE:MAN");
-    });
+    // MODALITÀ
+    $("#modeManual").addEventListener("click", () => sendCommand("MODE:MAN"));
+    $("#modeAuto").addEventListener("click", () => sendCommand("MODE:AUTO"));
 
-    $("#modeAuto").addEventListener("click", () => {
-        console.log("CLICK MODE AUTO");
-        sendCommand("MODE:AUTO");
-    });
-
-    // ===============================
     // PROFILI
-    // ===============================
-    $("#btnP1").addEventListener("click", () => {
-        selectedProfile = "P1";
-        console.log("Profilo selezionato:", selectedProfile);
-        sendCommand("LOAD:P1");
-    });
+    $("#btnP1").addEventListener("click", () => { selectedProfile = "P1"; sendCommand("LOAD:P1"); });
+    $("#btnP2").addEventListener("click", () => { selectedProfile = "P2"; sendCommand("LOAD:P2"); });
+    $("#btnP3").addEventListener("click", () => { selectedProfile = "P3"; sendCommand("LOAD:P3"); });
 
-    $("#btnP2").addEventListener("click", () => {
-        selectedProfile = "P2";
-        console.log("Profilo selezionato:", selectedProfile);
-        sendCommand("LOAD:P2");
-    });
-
-    $("#btnP3").addEventListener("click", () => {
-        selectedProfile = "P3";
-        console.log("Profilo selezionato:", selectedProfile);
-        sendCommand("LOAD:P3");
-    });
-
-    // ===============================
-    // SALVA PROFILO
-    // ===============================
+    // SALVA / RESET
     $("#btnSaveProfile").addEventListener("click", () => {
-        console.log("CLICK SALVA", selectedProfile);
-        if (!selectedProfile) return;
-        sendCommand(`SAVE:${selectedProfile}`);
+        if (selectedProfile) sendCommand(`SAVE:${selectedProfile}`);
     });
 
-    // ===============================
-    // RESET PROFILO
-    // ===============================
     $("#btnResetProfile").addEventListener("click", () => {
-        console.log("CLICK RESET", selectedProfile);
-        if (!selectedProfile) return;
-        sendCommand(`RESET:${selectedProfile}`);
+        if (selectedProfile) sendCommand(`RESET:${selectedProfile}`);
     });
 }
 
