@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pirotech Oil Stove Control</title>
 
+    <!-- Manifest PWA -->
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
+
+    <!-- Stile con cache-buster -->
+    <link rel="stylesheet" href="style.css?v=4">
+
+    <!-- Icona -->
     <link rel="icon" href="icons/icon-192.png" type="image/png">
 </head>
 
@@ -109,10 +114,17 @@
 
     </main>
 
-    <script src="script.js"></script>
+    <!-- Script con cache-buster -->
+    <script src="script.js?v=4"></script>
+
+    <!-- Registrazione Service Worker -->
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js")
+                .then(() => console.log("Service Worker registrato"))
+                .catch(err => console.error("Errore SW:", err));
+        }
+    </script>
 
 </body>
 </html>
-
-
-
