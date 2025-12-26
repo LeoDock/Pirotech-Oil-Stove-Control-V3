@@ -37,6 +37,44 @@ async function sendCommand(cmd) {
 }
 
 // ===============================
+// FUNZIONI DI SELEZIONE VERDE
+// ===============================
+
+function clearSelection(selectors) {
+    selectors.forEach(sel => {
+        document.querySelector(sel)?.classList.remove("selected");
+    });
+}
+
+function selectButton(selector) {
+    document.querySelector(selector)?.classList.add("selected");
+}
+
+// VENTOLA
+function evidenziaVentola(mode) {
+    clearSelection(["#btnOff", "#btnV1", "#btnV2", "#btnV3", "#btnV4", "#btnV5"]);
+    selectButton("#btn" + mode);
+}
+
+// PROFILI
+function evidenziaProfilo(p) {
+    clearSelection(["#btnP1", "#btnP2", "#btnP3"]);
+    selectButton("#btnP" + p);
+}
+
+// MODALITÀ
+function evidenziaModalita(mode) {
+    clearSelection(["#modeManual", "#modeAuto"]);
+    selectButton(mode === "MAN" ? "#modeManual" : "#modeAuto");
+}
+
+// START / STOP
+function evidenziaSistema(isOn) {
+    clearSelection(["#startBtn", "#stopBtn"]);
+    selectButton(isOn ? "#startBtn" : "#stopBtn");
+}
+
+// ===============================
 // RICEZIONE NOTIFICHE
 // ===============================
 
@@ -46,20 +84,33 @@ function handleIncoming(msg) {
     if (msg.startsWith("PROFILE:")) return;
 
     if (msg.startsWith("VENT:")) {
-        $("#statusVentola").textContent = msg.split(":")[1];
+        const mode = msg.split(":")[1];
+        $("#statusVentola").textContent = mode;
+        evidenziaVentola(mode);
         return;
     }
-
-    if (msg.startsWith("TON:")) return;
-    if (msg.startsWith("TOFF:")) return;
 
     if (msg.startsWith("MODE:")) {
-        $("#statusMode").textContent = msg.split(":")[1];
+        const mode = msg.split(":")[1];
+        $("#statusMode").textContent = mode;
+        evidenziaModalita(mode);
         return;
     }
 
-    if (msg.startsWith("ACTIVE:")) {
-        $("#statusProfile").textContent = msg.split(":")[1];
+    if (msg.startsWith("ACTIVE:P")) {
+        const p = msg.replace("ACTIVE:P", "");
+        $("#statusProfile").textContent = "P" + p;
+        evidenziaProfilo(p);
+        return;
+    }
+
+    if (msg === "SYS:ON") {
+        evidenziaSistema(true);
+        return;
+    }
+
+    if (msg === "SYS:OFF") {
+        evidenziaSistema(false);
         return;
     }
 }
@@ -82,7 +133,6 @@ async function connectBLE() {
         console.log("BLE connesso");
         $("#connectBtn").textContent = "Connesso";
 
-        // ATTIVA NOTIFICHE
         await bleCharacteristic.startNotifications();
         bleCharacteristic.addEventListener("characteristicvaluechanged", event => {
             const msg = new TextDecoder().decode(event.target.value).trim();
@@ -103,13 +153,21 @@ function setupUI() {
     $("#connectBtn").addEventListener("click", connectBLE);
 
     // START / STOP
-    $("#startBtn").addEventListener("click", () => sendCommand("START"));
-    $("#stopBtn").addEventListener("click", () => sendCommand("STOP"));
+    $("#startBtn").addEventListener("click", () => {
+        sendCommand("START");
+        evidenziaSistema(true);
+    });
+
+    $("#stopBtn").addEventListener("click", () => {
+        sendCommand("STOP");
+        evidenziaSistema(false);
+    });
 
     // VENTOLA
     $all(".vent-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`VENT:${btn.dataset.speed}`);
+            evidenziaVentola(btn.dataset.speed);
         });
     });
 
@@ -128,13 +186,34 @@ function setupUI() {
     });
 
     // MODALITÀ
-    $("#modeManual").addEventListener("click", () => sendCommand("MODE:MAN"));
-    $("#modeAuto").addEventListener("click", () => sendCommand("MODE:AUTO"));
+    $("#modeManual").addEventListener("click", () => {
+        sendCommand("MODE:MAN");
+        evidenziaModalita("MAN");
+    });
+
+    $("#modeAuto").addEventListener("click", () => {
+        sendCommand("MODE:AUTO");
+        evidenziaModalita("AUTO");
+    });
 
     // PROFILI
-    $("#btnP1").addEventListener("click", () => { selectedProfile = "P1"; sendCommand("LOAD:P1"); });
-    $("#btnP2").addEventListener("click", () => { selectedProfile = "P2"; sendCommand("LOAD:P2"); });
-    $("#btnP3").addEventListener("click", () => { selectedProfile = "P3"; sendCommand("LOAD:P3"); });
+    $("#btnP1").addEventListener("click", () => {
+        selectedProfile = "P1";
+        sendCommand("LOAD:P1");
+        evidenziaProfilo(1);
+    });
+
+    $("#btnP2").addEventListener("click", () => {
+        selectedProfile = "P2";
+        sendCommand("LOAD:P2");
+        evidenziaProfilo(2);
+    });
+
+    $("#btnP3").addEventListener("click", () => {
+        selectedProfile = "P3";
+        sendCommand("LOAD:P3");
+        evidenziaProfilo(3);
+    });
 
     // SALVA / RESET
     $("#btnSaveProfile").addEventListener("click", () => {
@@ -147,6 +226,3 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
-
-
-
