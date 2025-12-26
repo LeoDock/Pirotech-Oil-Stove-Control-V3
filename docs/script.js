@@ -50,32 +50,74 @@ function selectButton(selector) {
     document.querySelector(selector)?.classList.add("selected");
 }
 
-// VENTOLA
+// ===============================
+// VENTOLA (OFF, V1, V2, V3, V4, V5)
+// ===============================
+
 function evidenziaVentola(mode) {
-    clearSelection(["#btnOff", "#btnV1", "#btnV2", "#btnV3", "#btnV4", "#btnV5"]);
-    selectButton("#btn" + mode);
+    $all(".vent-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.speed === mode) {
+            btn.classList.add("selected");
+        }
+    });
 }
 
+// ===============================
+// TON (tempi ON)
+// ===============================
+
+function evidenziaTon(value) {
+    $all(".ton-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.ton === value) {
+            btn.classList.add("selected");
+        }
+    });
+}
+
+// ===============================
+// TOFF (tempi OFF)
+// ===============================
+
+function evidenziaToff(value) {
+    $all(".toff-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.toff === value) {
+            btn.classList.add("selected");
+        }
+    });
+}
+
+// ===============================
 // PROFILI
+// ===============================
+
 function evidenziaProfilo(p) {
     clearSelection(["#btnP1", "#btnP2", "#btnP3"]);
     selectButton("#btnP" + p);
 }
 
-// MODALITÀ
+// ===============================
+// MODALITÀ (MAN/AUTO)
+// ===============================
+
 function evidenziaModalita(mode) {
     clearSelection(["#modeManual", "#modeAuto"]);
     selectButton(mode === "MAN" ? "#modeManual" : "#modeAuto");
 }
 
+// ===============================
 // START / STOP
+// ===============================
+
 function evidenziaSistema(isOn) {
     clearSelection(["#startBtn", "#stopBtn"]);
     selectButton(isOn ? "#startBtn" : "#stopBtn");
 }
 
 // ===============================
-// RICEZIONE NOTIFICHE
+// RICEZIONE NOTIFICHE BLE
 // ===============================
 
 function handleIncoming(msg) {
@@ -87,6 +129,18 @@ function handleIncoming(msg) {
         const mode = msg.split(":")[1];
         $("#statusVentola").textContent = mode;
         evidenziaVentola(mode);
+        return;
+    }
+
+    if (msg.startsWith("TON:")) {
+        const value = msg.replace("TON:", "");
+        evidenziaTon(value);
+        return;
+    }
+
+    if (msg.startsWith("TOFF:")) {
+        const value = msg.replace("TOFF:", "");
+        evidenziaToff(value);
         return;
     }
 
@@ -175,6 +229,7 @@ function setupUI() {
     $all(".ton-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`TON:${btn.dataset.ton}`);
+            evidenziaTon(btn.dataset.ton);
         });
     });
 
@@ -182,6 +237,7 @@ function setupUI() {
     $all(".toff-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`TOFF:${btn.dataset.toff}`);
+            evidenziaToff(btn.dataset.toff);
         });
     });
 
@@ -226,3 +282,4 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
+
