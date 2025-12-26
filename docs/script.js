@@ -40,6 +40,54 @@ async function sendCommand(cmd) {
 // FUNZIONI DI SELEZIONE VERDE
 // ===============================
 
+function evidenziaVentola(mode) {
+    mode = mode.trim().toUpperCase();
+
+    $all(".vent-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.speed.toUpperCase() === mode) {
+            btn.classList.add("selected");
+        }
+    });
+}
+
+function evidenziaTon(value) {
+    value = value.trim();
+
+    $all(".ton-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.ton === value) {
+            btn.classList.add("selected");
+        }
+    });
+}
+
+function evidenziaToff(value) {
+    value = value.trim();
+
+    $all(".toff-btn").forEach(btn => {
+        btn.classList.remove("selected");
+        if (btn.dataset.toff === value) {
+            btn.classList.add("selected");
+        }
+    });
+}
+
+function evidenziaProfilo(p) {
+    clearSelection(["#btnP1", "#btnP2", "#btnP3"]);
+    selectButton("#btnP" + p);
+}
+
+function evidenziaModalita(mode) {
+    clearSelection(["#modeManual", "#modeAuto"]);
+    selectButton(mode === "MAN" ? "#modeManual" : "#modeAuto");
+}
+
+function evidenziaSistema(isOn) {
+    clearSelection(["#startBtn", "#stopBtn"]);
+    selectButton(isOn ? "#startBtn" : "#stopBtn");
+}
+
 function clearSelection(selectors) {
     selectors.forEach(sel => {
         document.querySelector(sel)?.classList.remove("selected");
@@ -51,79 +99,11 @@ function selectButton(selector) {
 }
 
 // ===============================
-// VENTOLA (OFF, V1, V2, V3, V4, V5)
-// ===============================
-
-function evidenziaVentola(mode) {
-    $all(".vent-btn").forEach(btn => {
-        btn.classList.remove("selected");
-        if (btn.dataset.speed === mode) {
-            btn.classList.add("selected");
-        }
-    });
-}
-
-// ===============================
-// TON (tempi ON)
-// ===============================
-
-function evidenziaTon(value) {
-    $all(".ton-btn").forEach(btn => {
-        btn.classList.remove("selected");
-        if (btn.dataset.ton === value) {
-            btn.classList.add("selected");
-        }
-    });
-}
-
-// ===============================
-// TOFF (tempi OFF)
-// ===============================
-
-function evidenziaToff(value) {
-    $all(".toff-btn").forEach(btn => {
-        btn.classList.remove("selected");
-        if (btn.dataset.toff === value) {
-            btn.classList.add("selected");
-        }
-    });
-}
-
-// ===============================
-// PROFILI
-// ===============================
-
-function evidenziaProfilo(p) {
-    clearSelection(["#btnP1", "#btnP2", "#btnP3"]);
-    selectButton("#btnP" + p);
-}
-
-// ===============================
-// MODALITÀ (MAN/AUTO)
-// ===============================
-
-function evidenziaModalita(mode) {
-    clearSelection(["#modeManual", "#modeAuto"]);
-    selectButton(mode === "MAN" ? "#modeManual" : "#modeAuto");
-}
-
-// ===============================
-// START / STOP
-// ===============================
-
-function evidenziaSistema(isOn) {
-    clearSelection(["#startBtn", "#stopBtn"]);
-    selectButton(isOn ? "#startBtn" : "#stopBtn");
-}
-
-// ===============================
 // RICEZIONE NOTIFICHE BLE
 // ===============================
 
 function handleIncoming(msg) {
     console.log("RX ←", msg);
-
-    if (msg.startsWith("PROFILE:")) return;
 
     if (msg.startsWith("VENT:")) {
         const mode = msg.split(":")[1];
@@ -185,7 +165,12 @@ async function connectBLE() {
         bleCharacteristic = await service.getCharacteristic(BLE_CHARACTERISTIC_UUID);
 
         console.log("BLE connesso");
-        $("#connectBtn").textContent = "Connesso";
+
+        const btn = $("#connectBtn");
+        if (btn) {
+            btn.textContent = "Connesso";
+            btn.classList.add("connected");
+        }
 
         await bleCharacteristic.startNotifications();
         bleCharacteristic.addEventListener("characteristicvaluechanged", event => {
@@ -206,7 +191,6 @@ function setupUI() {
 
     $("#connectBtn").addEventListener("click", connectBLE);
 
-    // START / STOP
     $("#startBtn").addEventListener("click", () => {
         sendCommand("START");
         evidenziaSistema(true);
@@ -217,7 +201,6 @@ function setupUI() {
         evidenziaSistema(false);
     });
 
-    // VENTOLA
     $all(".vent-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`VENT:${btn.dataset.speed}`);
@@ -225,7 +208,6 @@ function setupUI() {
         });
     });
 
-    // TON
     $all(".ton-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`TON:${btn.dataset.ton}`);
@@ -233,7 +215,6 @@ function setupUI() {
         });
     });
 
-    // TOFF
     $all(".toff-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             sendCommand(`TOFF:${btn.dataset.toff}`);
@@ -241,7 +222,6 @@ function setupUI() {
         });
     });
 
-    // MODALITÀ
     $("#modeManual").addEventListener("click", () => {
         sendCommand("MODE:MAN");
         evidenziaModalita("MAN");
@@ -252,7 +232,6 @@ function setupUI() {
         evidenziaModalita("AUTO");
     });
 
-    // PROFILI
     $("#btnP1").addEventListener("click", () => {
         selectedProfile = "P1";
         sendCommand("LOAD:P1");
@@ -271,7 +250,6 @@ function setupUI() {
         evidenziaProfilo(3);
     });
 
-    // SALVA / RESET
     $("#btnSaveProfile").addEventListener("click", () => {
         if (selectedProfile) sendCommand(`SAVE:${selectedProfile}`);
     });
@@ -282,4 +260,3 @@ function setupUI() {
 }
 
 window.addEventListener("DOMContentLoaded", setupUI);
-
