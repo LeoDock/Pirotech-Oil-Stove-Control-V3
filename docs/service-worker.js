@@ -1,45 +1,29 @@
-const CACHE_NAME = "pirotech-cache-v3";  // ← aumenta la versione quando aggiorni i file
-
-const ASSETS = [
-    "/", 
-    "/index.html",
-    "/style.css",
-    "/script.js",
-    "/manifest.json",
-    "/icons/icon-192.png",
-    "/icons/icon-512.png"
-];
+const CACHE_NAME = "pirotech-cache-v4";
 
 // INSTALL
 self.addEventListener("install", event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS);
-        })
-    );
-    self.skipWaiting(); // aggiorna subito
+    self.skipWaiting();
 });
 
 // ATTIVAZIONE
 self.addEventListener("activate", event => {
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
+        caches.keys().then(keys =>
+            Promise.all(
                 keys
                     .filter(key => key !== CACHE_NAME)
                     .map(key => caches.delete(key))
-            );
-        })
+            )
+        )
     );
-    self.clients.claim(); // applica subito la nuova versione
+    self.clients.claim();
 });
 
-// FETCH — sempre preferisci la rete, fallback alla cache
+// FETCH — rete prima, cache dopo
 self.addEventListener("fetch", event => {
     event.respondWith(
         fetch(event.request)
             .then(response => {
-                // aggiorna la cache con la versione nuova
                 const clone = response.clone();
                 caches.open(CACHE_NAME).then(cache => {
                     cache.put(event.request, clone);
