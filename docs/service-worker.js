@@ -1,11 +1,11 @@
-const CACHE_NAME = "pirotech-cache-v4";
+const CACHE_NAME = "pirotech-v5";
 
 // INSTALL
 self.addEventListener("install", event => {
     self.skipWaiting();
 });
 
-// ATTIVAZIONE
+// ACTIVATE
 self.addEventListener("activate", event => {
     event.waitUntil(
         caches.keys().then(keys =>
@@ -33,3 +33,4 @@ self.addEventListener("fetch", event => {
             .catch(() => caches.match(event.request))
     );
 });
+
