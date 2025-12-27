@@ -151,9 +151,11 @@ button:active {
     transform: scale(0.96);
 }
 
-/* ACTIVE STATE */
+/* ============================
+   STATO SELEZIONATO (VERDE)
+   ============================ */
 
-button.active {
+button.selected {
     background: var(--btn-bg-active);
     border-color: var(--btn-bg-active);
     color: #052e16;
@@ -161,74 +163,28 @@ button.active {
                 0 10px 20px rgba(16, 185, 129, 0.25);
 }
 
-/* SPECIFIC BUTTON TYPES */
-
-.vent-btn {
-    flex: 1 1 15%;
-    text-align: center;
-}
-
-.ton-btn,
-.toff-btn {
-    flex: 1 1 18%;
-    text-align: center;
-}
-
 /* MODE BUTTONS */
 
-.mode-btn {
-    flex: 1 1 45%;
-}
-
-.mode-btn.active {
+.mode-btn.selected {
     background: var(--accent-soft);
     border-color: var(--accent);
     color: var(--accent);
 }
 
-/* START / STOP BUTTONS */
+/* START / STOP */
 
-.start-btn {
-    flex: 1 1 45%;
-    background: linear-gradient(to right, #16a34a, #22c55e);
-    border-color: #22c55e;
-    color: #022c22;
-    font-weight: 600;
-}
-
-.start-btn.active {
+.start-btn.selected {
     box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6),
                 0 12px 24px rgba(34, 197, 94, 0.35);
 }
 
-.stop-btn {
-    flex: 1 1 45%;
-    background: linear-gradient(to right, #b91c1c, #ef4444);
-    border-color: #ef4444;
-    color: #fef2f2;
-    font-weight: 600;
-}
-
-.stop-btn.active {
+.stop-btn.selected {
     box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.6),
                 0 12px 24px rgba(248, 113, 113, 0.35);
 }
 
-/* ============================
-   PROFILI – STILI AGGIORNATI
-   ============================ */
+/* PROFILI */
 
-.profile-btn {
-    flex: 1 1 30%;
-    position: relative;
-    background: var(--btn-bg-secondary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    font-weight: 600;
-    transition: all var(--transition-fast);
-}
-
-/* PROFILO SELEZIONATO = VERDE */
 .profile-btn.selected {
     background: rgba(16, 185, 129, 0.35);
     border-color: var(--accent);
@@ -236,7 +192,6 @@ button.active {
     box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
 }
 
-/* PROFILO SALVATO (VALID) */
 .profile-btn.valid {
     background: rgba(16, 185, 129, 0.25);
     border-color: var(--accent);
@@ -244,7 +199,6 @@ button.active {
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
 }
 
-/* PROFILO VUOTO (EMPTY) */
 .profile-btn.empty {
     background: rgba(55, 65, 81, 0.4);
     border-color: #3b4252;
@@ -252,6 +206,7 @@ button.active {
 }
 
 /* SALVA / RESET */
+
 .profile-action-btn {
     flex: 1 1 45%;
     padding: 10px 16px;
@@ -260,7 +215,6 @@ button.active {
     transition: all var(--transition-fast);
 }
 
-/* SALVA */
 #btnSaveProfile {
     background: rgba(16, 185, 129, 0.2);
     border: 1px solid var(--accent);
@@ -272,7 +226,6 @@ button.active {
     box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
 }
 
-/* RESET */
 #btnResetProfile {
     background: rgba(239, 68, 68, 0.2);
     border: 1px solid var(--accent-danger);
